@@ -1,11 +1,14 @@
 import cjs from "rollup-plugin-cjs-es";
 import resolve from "@rollup/plugin-node-resolve";
-import {terser} from "rollup-plugin-terser";
-import json from "rollup-plugin-json";
+import terser from "@rollup/plugin-terser";
+import json from "@rollup/plugin-json";
 
 export default [
   createConfig({
     output: {file: "dist/linkify-plus-plus-core.js"}
+  }),
+  createConfig({
+    output: {file: "dist/linkify-plus-plus-core.esm.js", format: "es"}
   }),
   createConfig({
     output: {file: "dist/linkify-plus-plus-core.min.js"},

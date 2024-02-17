@@ -1,6 +1,8 @@
-var {describe, it} = require("mocha"),
-	{UrlMatcher} = require("../lib/url-matcher"),
-	assert = require("assert");
+/* eslint-env mocha browser */
+import {assert} from "@open-wc/testing";
+import {compareSnapshot} from "@web/test-runner-commands";
+
+import {UrlMatcher, linkify} from "../dist/linkify-plus-plus-core.esm.js";
 
 describe("UrlMatcher", () => {
 	
@@ -85,7 +87,8 @@ describe("UrlMatcher", () => {
 	});
 	
 	it("bad tlds", () => {
-		match.no("http://example.zip");
+    // now .zip is more common
+		// match.no("http://example.zip");
 		match.no("http://example.free");
 		match.no("http://example.call");
 		match.no("http://example.constructor");
@@ -139,4 +142,48 @@ describe("UrlMatcher", () => {
     match("https://1fichier.com");
     match("https://9292.nl");
   });
+});
+
+describe("Linkifier", () => {
+  let matcher;
+  before(() => {
+    matcher = new UrlMatcher();
+  });
+
+  it("basic", async () => {
+    document.body.innerHTML = "example.com <span>example.com</span>";
+    await linkify(document.body, {matcher});
+    await compareSnapshot({
+      name: "basic",
+      content: document.body.innerHTML
+    });
+  });
+
+  it("recursive off", async () => {
+    document.body.innerHTML = "example.com <span>example.com</span>";
+    await linkify(document.body, {matcher, recursive: false});
+    await compareSnapshot({
+      name: "recursive off",
+      content: document.body.innerHTML
+    });
+  });
+
+  it("wbr", async () => {
+    document.body.innerHTML = "exam<wbr>ple.com";
+    await linkify(document.body, {matcher, recursive: false});
+    await compareSnapshot({
+      name: "wbr",
+      content: document.body.innerHTML
+    });
+  });
+
+  it("invalid tags", async () => {
+    document.body.innerHTML = "<script>example.com</script>";
+    await linkify(document.body, {matcher, recursive: false});
+    await compareSnapshot({
+      name: "invalid tags",
+      content: document.body.innerHTML
+    });
+  });
+
 });
